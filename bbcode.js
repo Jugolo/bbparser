@@ -23,12 +23,23 @@ var Bbcode = (
     
     for(;state.i<state.s.length;state.i++){
       if(state.s.charAt(state.i) == "["){
-        var i=state.i;//save the pos
-        var data = renderBlock(state);
-        if(data !== null && type.bbcode[data.code] !== "undefined"){
-          
-        }
-        state.i = i;
+         if(state.s.charAt(state.i+1) == "/"){
+           return buffer;
+         }else{
+           var i = state.i;
+           var block = renderBlock(state);
+           if(block != null && typeof obj.bbcode[block.code] !== "undefined"){
+             var str = renderString(obj, state);
+             if(state.s.charAt(state.i) === "[" && state.s.charAt(state.i+1) === "/"){
+               state.i++;
+               var end = renderBlock(state);
+               if(end !== null && end.code === block.code){
+                 return obj.bbcode[block.code].open(block.attribute)+buffer+obj.bbcode[block.code].end();
+               }
+             }
+           }
+           state.i = i;
+         }
       }
       
       buffer += state.s.charAt(state.i);
