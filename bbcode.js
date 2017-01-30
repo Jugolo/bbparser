@@ -1,4 +1,19 @@
 var Bbcode = (
+  function isLetter(state){
+    var i = state.s.charCodeAt(state.i);
+    return i >= 97 && i <= 122;
+  }
+  
+  function getCode(state){
+    var buffer = "";
+    for(;state.i<state.s.length;state.i++){
+      if(!isLetter(state))
+        return buffer;
+      buffer += state.s.charAt(state.i);
+    }
+    return buffer;
+  }
+  
   function renderBlock(state){
     var result = {};
     result.code = getCode(state);
@@ -50,6 +65,17 @@ var Bbcode = (
   
   function Bbcode(){
     this.bbcode = {};
+    this.bbcode["url"] = {
+      open : function(attribute){
+        if(typeof attribute === "undefined"){
+          attribute = "#";
+        }
+        return "<a href='"+attribute+"'>";
+      },
+      end : function(){
+        return "</a>";
+      }
+    };
   }
   
   Bbcode.prototype.render = function(str){
