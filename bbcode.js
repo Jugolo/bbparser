@@ -1,4 +1,4 @@
-var Bbcode = (
+var Bbcode = (function(){
   function isLetter(state){
     var i = state.s.charCodeAt(state.i);
     return i >= 97 && i <= 122;
@@ -33,18 +33,22 @@ var Bbcode = (
     return result;
   }
   
-  function renderString(obj, state){
+  function renderString(obj, state, endBlock){
     var buffer = "";
     
     for(;state.i<state.s.length;state.i++){
       if(state.s.charAt(state.i) == "["){
+        var i = state.i;
          if(state.s.charAt(state.i+1) == "/"){
-           return buffer;
+           var newBlock = renderBlock(state);
+           if(newBlock !== null && newBlock.code == endBlock){
+             state.i=i;
+             return buffer;
+           }
          }else{
-           var i = state.i;
            var block = renderBlock(state);
            if(block != null && typeof obj.bbcode[block.code] !== "undefined"){
-             var str = renderString(obj, state);
+             var str = renderString(obj, state, block.code);
              if(state.s.charAt(state.i) === "[" && state.s.charAt(state.i+1) === "/"){
                state.i++;
                var end = renderBlock(state);
@@ -53,8 +57,8 @@ var Bbcode = (
                }
              }
            }
-           state.i = i;
          }
+        state.i=i;
       }
       
       buffer += state.s.charAt(state.i);
@@ -83,8 +87,8 @@ var Bbcode = (
       i : 0,
       s : str
     };
-    return renderString(this, state);
+    return renderString(this, state, "5151");
   };
   
   return Bbcode;
-)();
+})();
